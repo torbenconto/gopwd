@@ -3,6 +3,8 @@
 [![Gopwd](https://circleci.com/gh/pvwnthem/gopwd.svg?style=svg)](https://github.com/pvwnthem/gopwd)
 [![Go Report Card](https://goreportcard.com/badge/github.com/pvwnthem/gopwd)](https://goreportcard.com/report/github.com/pvwnthem/gopwd)
 
+### This project is developed by Torben Conto across two accounts. "pvwnthem" is a previous account of this current account "torbenconto"
+
 ## Introduction
 gopwd is a (cross platform 😁) command-line password manager written in Golang. It provides a secure, convenient, and portable way to store and manage your passwords.
 
