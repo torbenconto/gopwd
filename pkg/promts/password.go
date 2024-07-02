@@ -1,4 +1,4 @@
-package util
+package promts
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 	"golang.org/x/term"
 )
 
-func GetPassword() (string, error) {
+func PromptPassword() (string, error) {
 	fmt.Print("Enter password: ")
 	password, err := term.ReadPassword(int(syscall.Stdin))
 	fmt.Println()
@@ -29,19 +29,4 @@ func GetPassword() (string, error) {
 	}
 
 	return string(password), nil
-}
-
-func ConfirmAction() (bool, error) {
-	fmt.Print("Are you sure? [y/N] ")
-	var input string
-	_, err := fmt.Scanln(&input)
-	if err != nil {
-		return false, err
-	}
-
-	if input == "y" || input == "Y" {
-		return true, nil
-	}
-
-	return false, nil
 }
