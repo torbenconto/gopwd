@@ -6,16 +6,16 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/torbenconto/gopwd/internal/crypt/gpg"
 	"github.com/torbenconto/gopwd/internal/io"
-	"github.com/torbenconto/gopwd/internal/termio"
+	"github.com/torbenconto/gopwd/internal/pwgen"
 	"github.com/torbenconto/gopwd/internal/util"
 	"os"
 	"path"
 	"strings"
 )
 
-var insertCmd = &cobra.Command{
-	Use:   "insert [service] [flags]",
-	Short: "Insert a password for a service",
+var generateCmd = &cobra.Command{
+	Use:   "generate [service] [flags]",
+	Short: "Generate a password for a service",
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		service := args[0]
@@ -24,7 +24,12 @@ var insertCmd = &cobra.Command{
 		var createdFiles []string
 		var success = false
 
-		// Flags
+		length, _ := cmd.Flags().GetInt("length")
+		symbols, _ := cmd.Flags().GetBool("symbols")
+		numbers, _ := cmd.Flags().GetBool("numbers")
+		uppercase, _ := cmd.Flags().GetBool("uppercase")
+		lowercase, _ := cmd.Flags().GetBool("lowercase")
+		human, _ := cmd.Flags().GetBool("memorable")
 		copyFlag, _ := cmd.Flags().GetBool("copy")
 
 		defer func() {
@@ -60,10 +65,19 @@ var insertCmd = &cobra.Command{
 			return fmt.Errorf("service already exists in vault: %s", service)
 		}
 
-		// Prompt the user for the password
-		password, err := termio.PromptPassword()
+		// Generate password
+		generator := pwgen.NewPasswordGenerator(pwgen.PasswordGeneratorConfig{
+			Length:    length,
+			Humanized: human,
+			Symbols:   symbols,
+			Numbers:   numbers,
+			Lowercase: lowercase,
+			Uppercase: uppercase,
+		})
+
+		password, err := generator.Generate()
 		if err != nil {
-			return fmt.Errorf("failed to prompt for password, error: %v", err)
+			return fmt.Errorf("failed to generate password: %v", err)
 		}
 
 		// Get the GPG ID from the .gpg-id file
@@ -103,6 +117,12 @@ var insertCmd = &cobra.Command{
 }
 
 func init() {
-	insertCmd.Flags().BoolP("copy", "c", false, "Copy the password to the clipboard")
-	rootCmd.AddCommand(insertCmd)
+	generateCmd.Flags().IntP("length", "l", 16, "Length of the generated password")
+	generateCmd.Flags().BoolP("symbols", "s", true, "Include symbols in the generated password")
+	generateCmd.Flags().BoolP("numbers", "n", true, "Include numbers in the generated password")
+	generateCmd.Flags().BoolP("uppercase", "u", true, "Include uppercase letters in the generated password")
+	generateCmd.Flags().BoolP("lowercase", "L", true, "Include lowercase letters in the generated password")
+	generateCmd.Flags().BoolP("memorable", "m", false, "Include words in the generated password")
+	generateCmd.Flags().BoolP("copy", "c", false, "Copy the generated password to the clipboard")
+	rootCmd.AddCommand(generateCmd)
 }

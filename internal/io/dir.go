@@ -2,6 +2,7 @@ package io
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"os"
 )
@@ -27,4 +28,25 @@ func IsDirEmpty(dirPath string) (bool, error) {
 		return true, nil // EOF means the directory is empty
 	}
 	return false, err // Return false if the directory is not empty or an error occurred
+}
+
+func Cleanup(files []string, dirs []string) error {
+	for _, file := range files {
+		if Exists(file) {
+			err := os.Remove(file)
+			if err != nil {
+				return fmt.Errorf("error cleaning up file %s: %v\n", file, err)
+			}
+		}
+	}
+	for _, dir := range dirs {
+		if Exists(dir) {
+			err := os.RemoveAll(dir)
+			if err != nil {
+				return fmt.Errorf("error cleaning up directory %s: %v\n", dir, err)
+			}
+		}
+	}
+
+	return nil
 }
