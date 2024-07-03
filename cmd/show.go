@@ -21,6 +21,11 @@ var showCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		service := args[0]
 
+		// Flags
+		qrFlag, _ := cmd.Flags().GetBool("qr")
+		copyFlag, _ := cmd.Flags().GetBool("copy")
+		lineNumber, _ := cmd.Flags().GetInt("line")
+
 		// Check if service exists
 		if !io.Exists(path.Join(VaultPath, service+".gpg")) {
 			return fmt.Errorf("service %s not found", service)
@@ -44,17 +49,16 @@ var showCmd = &cobra.Command{
 			return fmt.Errorf("failed to decrypt password: %v", err)
 		}
 
-		line, _ := cmd.Flags().GetInt("line")
 		lines := strings.Split(string(password), "\n")
-		if line > 0 {
-			line := lines[line-1]
+		if lineNumber > 0 {
+			line := lines[lineNumber-1]
 			if line == "" {
 				return fmt.Errorf("line %s is empty", line)
 			}
-			if qrFlag, _ := cmd.Flags().GetBool("qr"); qrFlag {
+			if qrFlag {
 				qr.Generate(string(password), qr.M, os.Stdout)
 			}
-			if copyFlag, _ := cmd.Flags().GetBool("copy"); copyFlag {
+			if copyFlag {
 				err = clipboard.WriteAll(line)
 				if err != nil {
 					return fmt.Errorf("failed to copy line to clipboard: %w", err)
@@ -66,11 +70,11 @@ var showCmd = &cobra.Command{
 			return nil
 		}
 
-		if qrFlag, _ := cmd.Flags().GetBool("qr"); qrFlag {
+		if qrFlag {
 			qr.Generate(string(password), qr.M, os.Stdout)
 		}
 
-		if copyFlag, _ := cmd.Flags().GetBool("copy"); copyFlag {
+		if copyFlag {
 			err = clipboard.WriteAll(string(password))
 			if err != nil {
 				return fmt.Errorf("failed to copy password to clipboard: %w", err)

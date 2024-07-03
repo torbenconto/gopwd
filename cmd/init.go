@@ -8,13 +8,13 @@ import (
 	"path"
 )
 
-var vaultPath string
-
 var initCmd = &cobra.Command{
 	Use:   "init [gpg-id] [flags]",
 	Short: "Initialize gopwd vault at a path",
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
+		vaultPath, _ := cmd.Flags().GetString("path")
+
 		//check if vaultPath exists
 		//if not, create it
 		if !io.Exists(vaultPath) {
@@ -73,6 +73,6 @@ func init() {
 		}
 	}
 
-	initCmd.Flags().StringVarP(&vaultPath, "path", "p", path.Join(GopwdPath, "vault"), "path to gopwd vault")
+	initCmd.Flags().StringP("path", "p", path.Join(GopwdPath, "vault"), "path to gopwd vault")
 	rootCmd.AddCommand(initCmd)
 }

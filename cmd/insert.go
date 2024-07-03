@@ -23,6 +23,9 @@ var insertCmd = &cobra.Command{
 		var createdFiles []string
 		var success = false
 
+		// Flags
+		copyFlag, _ := cmd.Flags().GetBool("copy")
+
 		defer func() {
 			if !success {
 				// Cleanup created directories and files if command fails
@@ -93,7 +96,7 @@ var insertCmd = &cobra.Command{
 			return fmt.Errorf("failed to write encrypted password to .gpg file for service: %s, error: %v", service, err)
 		}
 
-		if copyFlag, _ := cmd.Flags().GetBool("copy"); copyFlag {
+		if copyFlag {
 			err = clipboard.WriteAll(password)
 			if err != nil {
 				return fmt.Errorf("failed to copy password to clipboard, error: %v", err)
