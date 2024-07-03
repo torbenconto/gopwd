@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/torbenconto/gopwd/internal/io"
+	"github.com/torbenconto/gopwd/internal/termio"
 
 	"os"
 	"path"
@@ -19,7 +20,7 @@ var rmCmd = &cobra.Command{
 		dirPath := path.Dir(servicePath)
 
 		if io.Exists(servicePath) {
-			action, err := io.ConfirmAction()
+			action, err := termio.ConfirmAction()
 			if err != nil {
 				return fmt.Errorf("failed to confirm action: %v", err)
 			}

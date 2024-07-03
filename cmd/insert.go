@@ -6,6 +6,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/torbenconto/gopwd/internal/crypt/gpg"
 	"github.com/torbenconto/gopwd/internal/io"
+	"github.com/torbenconto/gopwd/internal/termio"
 	"github.com/torbenconto/gopwd/internal/util"
 	"os"
 	"path"
@@ -72,7 +73,7 @@ var insertCmd = &cobra.Command{
 		}
 
 		// Prompt the user for the password
-		password, err := io.PromptPassword()
+		password, err := termio.PromptPassword()
 		if err != nil {
 			return fmt.Errorf("failed to prompt for password, error: %v", err)
 		}
