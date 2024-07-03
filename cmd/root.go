@@ -4,15 +4,16 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/torbenconto/gopwd/pkg/util"
+	"github.com/torbenconto/gopwd/internal/io"
+	"github.com/torbenconto/gopwd/internal/util"
 	"path"
 )
 
-var GopwdPath = path.Join(util.GetHomeDir(), ".gopwd")
-
-var configFilePath string
-var VaultPath string
-var copytoclipboard bool
+var (
+	GopwdPath      = path.Join(io.GetHomeDir(), ".gopwd")
+	configFilePath string
+	VaultPath      string
+)
 
 var rootCmd = &cobra.Command{
 	Use:   "gopwd",
@@ -34,7 +35,7 @@ func Execute() {
 
 		// check if .goPwd directory exists
 		// if not, tell the user to run gopwd init
-		if !util.Exists(GopwdPath) {
+		if !io.Exists(GopwdPath) {
 			panic("gopwd not initialized. Run 'gopwd init' to initialize")
 		}
 
@@ -46,14 +47,13 @@ func Execute() {
 
 		// check if vaultPath exists
 		// if not, tell the user to run gopwd init
-		if !util.Exists(viper.Get("vaultPath").(string)) {
+		if !io.Exists(viper.Get("vaultPath").(string)) {
 			panic("gopwd vault not initialized. Run 'gopwd init' to initialize")
 		}
 
 		VaultPath = viper.Get("vaultPath").(string)
 	}
 
-	rootCmd.PersistentFlags().BoolVarP(&copytoclipboard, "copy", "c", false, "copy the output to clipboard")
 	rootCmd.PersistentFlags().StringVar(&configFilePath, "config", path.Join(GopwdPath, ".gopwd.yaml"), "config file (default is $HOME/.gopwd/.gopwd.yaml)")
 	rootCmd.Execute()
 }

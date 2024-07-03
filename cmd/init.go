@@ -3,7 +3,8 @@ package cmd
 import (
 	"fmt"
 	"github.com/spf13/cobra"
-	"github.com/torbenconto/gopwd/pkg/util"
+	"github.com/torbenconto/gopwd/internal/io"
+	util2 "github.com/torbenconto/gopwd/internal/util"
 	"path"
 )
 
@@ -16,8 +17,8 @@ var initCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		//check if vaultPath exists
 		//if not, create it
-		if !util.Exists(vaultPath) {
-			err := util.CreateDir(vaultPath)
+		if !io.Exists(vaultPath) {
+			err := io.CreateDir(vaultPath)
 			if err != nil {
 				return err
 			}
@@ -25,19 +26,19 @@ var initCmd = &cobra.Command{
 			return fmt.Errorf("vault already exists at %s", vaultPath)
 		}
 
-		err := util.WriteToFile(path.Join(GopwdPath, ".gopwd.yaml"), []byte(fmt.Sprintf("vaultPath: %s", vaultPath)))
+		err := io.WriteToFile(path.Join(GopwdPath, ".gopwd.yaml"), []byte(fmt.Sprintf("vaultPath: %s", vaultPath)))
 		if err != nil {
 			return err
 		}
 
 		//create .gpg-id file in vaultPath
-		_, err = util.CreateFile(path.Join(vaultPath, ".gpg-id"))
+		_, err = io.CreateFile(path.Join(vaultPath, ".gpg-id"))
 		if err != nil {
 			return err
 		}
 
 		//write gpg-id to .gpg-id file
-		err = util.WriteToFile(path.Join(vaultPath, ".gpg-id"), []byte(args[0]))
+		err = io.WriteToFile(path.Join(vaultPath, ".gpg-id"), []byte(args[0]))
 		if err != nil {
 			return err
 		}
@@ -51,21 +52,21 @@ func init() {
 		// check if .goPwd directory exists
 		// check if .goPwd/.goPwd.yaml exists
 		// if not, create it
-		if !util.Exists(GopwdPath) {
-			err := util.CreateDir(GopwdPath)
+		if !io.Exists(GopwdPath) {
+			err := io.CreateDir(GopwdPath)
 			if err != nil {
 				panic(err)
 			}
 		}
 
-		if !util.Exists(path.Join(GopwdPath, ".gopwd.yaml")) {
-			_, err := util.CreateFile(path.Join(GopwdPath, ".gopwd.yaml"))
+		if !io.Exists(path.Join(GopwdPath, ".gopwd.yaml")) {
+			_, err := io.CreateFile(path.Join(GopwdPath, ".gopwd.yaml"))
 			if err != nil {
 				panic(err)
 			}
 		}
 
-		err := util.LoadConfig(configFilePath)
+		err := util2.LoadConfig(configFilePath)
 
 		if err != nil {
 			panic(err)

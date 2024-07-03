@@ -1,53 +1,11 @@
 package util
 
 import (
-	"errors"
 	"fmt"
-	"io"
 	"os"
 	"path/filepath"
 	"strings"
 )
-
-func Exists(path string) bool {
-	_, err := os.Stat(path)
-	return !os.IsNotExist(err)
-}
-
-func GetHomeDir() string {
-	homeDir, _ := os.UserHomeDir()
-	return homeDir
-}
-
-func CreateDir(dir string) error {
-	return os.Mkdir(dir, 0755)
-}
-
-func CreateFile(file string) (*os.File, error) {
-	return os.Create(file)
-}
-
-func RemoveFile(file string) error {
-	return os.Remove(file)
-}
-
-func WriteToFile(file string, data []byte) error {
-	return os.WriteFile(file, data, 0644)
-}
-
-func IsDirEmpty(dirPath string) (bool, error) {
-	f, err := os.Open(dirPath)
-	if err != nil {
-		return false, err
-	}
-	defer f.Close()
-
-	_, err = f.Readdirnames(1) // Try to read at least one entry
-	if errors.Is(err, io.EOF) {
-		return true, nil // EOF means the directory is empty
-	}
-	return false, err // Return false if the directory is not empty or an error occurred
-}
 
 func PrintVaultStructure(vaultPath string) error {
 	var printStructure func(path string, prefix string, isLast bool)

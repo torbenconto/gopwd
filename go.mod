@@ -7,6 +7,7 @@ require (
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/viper v1.19.0
 	golang.org/x/term v0.21.0
+	rsc.io/qr v0.2.0
 )
 
 require (

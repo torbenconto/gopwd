@@ -1,10 +1,9 @@
-package prompts
+package io
 
 import (
 	"fmt"
-	"syscall"
-
 	"golang.org/x/term"
+	"syscall"
 )
 
 func PromptPassword() (string, error) {

@@ -1,9 +1,7 @@
-package crypt
+package gpg
 
 import (
-	"bytes"
 	"os"
-	"os/exec"
 )
 
 var (
@@ -26,6 +24,13 @@ func NewGPG(id string, config Config) *GPG {
 		id: id,
 	}
 
+	// Set GPG_TTY environment variable
+	if gt := os.Getenv("GPG_TTY"); gt == "" {
+		if t := TTY(); t != "" {
+			_ = os.Setenv("GPG_TTY", t)
+		}
+	}
+
 	// Set default values
 	if config.BinaryPath == "" {
 		config.BinaryPath = "gpg"
@@ -39,37 +44,6 @@ func NewGPG(id string, config Config) *GPG {
 	gpg.args = config.Args
 
 	return gpg
-}
-
-func (g *GPG) Encrypt(plaintext []byte) ([]byte, error) {
-	args := append(g.Args(), "--encrypt")
-	args = append(args, "--recipient", g.ID())
-
-	buffer := &bytes.Buffer{}
-
-	cmd := exec.Command(g.Binary(), args...)
-	cmd.Stdin = bytes.NewReader(plaintext)
-	cmd.Stdout = buffer
-	cmd.Stderr = os.Stderr
-
-	err := cmd.Run()
-
-	return buffer.Bytes(), err
-}
-
-func (g *GPG) Decrypt(ciphertext []byte) ([]byte, error) {
-	args := append(g.Args(), "--decrypt")
-
-	buffer := &bytes.Buffer{}
-
-	cmd := exec.Command(g.Binary(), args...)
-	cmd.Stdin = bytes.NewReader(ciphertext)
-	cmd.Stdout = buffer
-	cmd.Stderr = os.Stderr
-
-	err := cmd.Run()
-
-	return buffer.Bytes(), err
 }
 
 func (g *GPG) Binary() string {

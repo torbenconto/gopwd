@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"github.com/atotto/clipboard"
 	"github.com/spf13/cobra"
-	"github.com/torbenconto/gopwd/pkg/crypt"
-	"github.com/torbenconto/gopwd/pkg/prompts"
-	"github.com/torbenconto/gopwd/pkg/util"
+	"github.com/torbenconto/gopwd/internal/crypt/gpg"
+	"github.com/torbenconto/gopwd/internal/io"
+	"github.com/torbenconto/gopwd/internal/util"
 	"os"
 	"path"
 	"strings"
@@ -27,7 +27,7 @@ var insertCmd = &cobra.Command{
 			if !success {
 				// Cleanup created directories and files if command fails
 				for _, file := range createdFiles {
-					if util.Exists(file) {
+					if io.Exists(file) {
 						err := os.Remove(file)
 						if err != nil {
 							fmt.Printf("Error cleaning up file %s: %v\n", file, err)
@@ -35,7 +35,7 @@ var insertCmd = &cobra.Command{
 					}
 				}
 				for _, dir := range createdDirs {
-					if util.Exists(dir) {
+					if io.Exists(dir) {
 						err := os.RemoveAll(dir)
 						if err != nil {
 							fmt.Printf("Error cleaning up directory %s: %v\n", dir, err)
@@ -49,7 +49,7 @@ var insertCmd = &cobra.Command{
 		var dirPath string
 		if len(dirs) > 1 {
 			dirPath = path.Join(VaultPath, strings.Join(dirs[:len(dirs)-1], "/"))
-			if !util.Exists(dirPath) {
+			if !io.Exists(dirPath) {
 				err := os.MkdirAll(dirPath, 0755)
 				if err != nil {
 					return fmt.Errorf("failed to create directory structure for service: %s, error: %v", service, err)
@@ -58,8 +58,8 @@ var insertCmd = &cobra.Command{
 			}
 		}
 
-		if !util.Exists(servicePath) {
-			_, err := util.CreateFile(servicePath)
+		if !io.Exists(servicePath) {
+			_, err := io.CreateFile(servicePath)
 			if err != nil {
 				return fmt.Errorf("failed to create .gpg file for service: %s, error: %v", service, err)
 			}
@@ -69,7 +69,7 @@ var insertCmd = &cobra.Command{
 		}
 
 		// Prompt the user for the password
-		password, err := prompts.PromptPassword()
+		password, err := io.PromptPassword()
 		if err != nil {
 			return fmt.Errorf("failed to prompt for password, error: %v", err)
 		}
@@ -82,23 +82,24 @@ var insertCmd = &cobra.Command{
 
 		// Encrypt the password and write it to the .gpg file
 
-		GPG := crypt.NewGPG(gpgID, crypt.Config{})
+		GPG := gpg.NewGPG(gpgID, gpg.Config{})
 		encryptedPassword, err := GPG.Encrypt([]byte(password))
 		if err != nil {
 			return fmt.Errorf("failed to encrypt password for service: %s, error: %v", service, err)
 		}
 
-		err = util.WriteToFile(servicePath, encryptedPassword)
+		err = io.WriteToFile(servicePath, encryptedPassword)
 		if err != nil {
 			return fmt.Errorf("failed to write encrypted password to .gpg file for service: %s, error: %v", service, err)
 		}
 
-		if copytoclipboard {
+		if copyFlag, _ := cmd.Flags().GetBool("copy"); copyFlag {
 			err = clipboard.WriteAll(password)
 			if err != nil {
 				return fmt.Errorf("failed to copy password to clipboard, error: %v", err)
 			}
-			fmt.Printf("Copied password for %s to clipboard", service)
+			fmt.Printf("Copied password for %s to clipboard\n", service)
+			success = true
 			return nil
 		}
 
@@ -110,5 +111,6 @@ var insertCmd = &cobra.Command{
 }
 
 func init() {
+	insertCmd.Flags().BoolP("copy", "c", false, "Copy the password to the clipboard")
 	rootCmd.AddCommand(insertCmd)
 }

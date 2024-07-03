@@ -1,4 +1,4 @@
-package prompts
+package io
 
 import "fmt"
 
