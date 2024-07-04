@@ -50,8 +50,15 @@ var showCmd = &cobra.Command{
 		}
 
 		lines := strings.Split(string(password), "\n")
-		if lineNumber > 0 {
-			line := lines[lineNumber-1]
+		var nonEmptyLines []string
+		for _, line := range lines {
+			if strings.TrimSpace(line) != "" {
+				nonEmptyLines = append(nonEmptyLines, line)
+			}
+		}
+
+		if lineNumber > 0 && lineNumber <= len(nonEmptyLines) {
+			line := nonEmptyLines[lineNumber-1]
 			if line == "" {
 				return fmt.Errorf("line %s is empty", line)
 			}
@@ -70,6 +77,8 @@ var showCmd = &cobra.Command{
 			return nil
 		}
 
+		password = []byte(strings.Join(nonEmptyLines, "\n"))
+
 		if qrFlag {
 			qr.Generate(string(password), qr.M, os.Stdout)
 		}
@@ -81,7 +90,7 @@ var showCmd = &cobra.Command{
 			}
 			fmt.Printf("Copied password for %s to clipboard\n", service)
 		} else {
-			fmt.Printf("%s\n", password)
+			fmt.Println(string(password))
 		}
 
 		return nil
@@ -90,7 +99,7 @@ var showCmd = &cobra.Command{
 
 func init() {
 	showCmd.Flags().BoolP("qr", "q", false, "Show QR code of password")
-	showCmd.Flags().IntP("line", "l", 1, "Show a specific line of the file")
+	showCmd.Flags().IntP("line", "l", 0, "Show a specific line of the file")
 	showCmd.Flags().BoolP("copy", "c", false, "Copy password to clipboard")
 	rootCmd.AddCommand(showCmd)
 }

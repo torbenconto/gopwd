@@ -26,6 +26,7 @@ var insertCmd = &cobra.Command{
 
 		// Flags
 		copyFlag, _ := cmd.Flags().GetBool("copy")
+		multilineFlag, _ := cmd.Flags().GetBool("multiline")
 
 		defer func() {
 			if !success {
@@ -60,10 +61,17 @@ var insertCmd = &cobra.Command{
 			return fmt.Errorf("service already exists in vault: %s", service)
 		}
 
-		// Prompt the user for the password
-		password, err := termio.PromptPassword()
+		var password string
+		var err error
+
+		if multilineFlag {
+			fmt.Println("Enter the contents of the file and press Ctrl-D when finished.")
+			password, err = termio.ReadMultiline()
+		} else {
+			password, err = termio.PromptPassword()
+		}
 		if err != nil {
-			return fmt.Errorf("failed to prompt for password, error: %v", err)
+			return fmt.Errorf("failed to read password: %v", err)
 		}
 
 		// Get the GPG ID from the .gpg-id file
@@ -104,5 +112,6 @@ var insertCmd = &cobra.Command{
 
 func init() {
 	insertCmd.Flags().BoolP("copy", "c", false, "Copy the password to the clipboard")
+	insertCmd.Flags().BoolP("multiline", "m", false, "Input a multiline password")
 	rootCmd.AddCommand(insertCmd)
 }
