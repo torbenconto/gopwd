@@ -185,3 +185,9 @@ To copy a password from one service to another, use the following command:
 ```
 gopwd cp <service> <new service>
 ```
+
+## Future Features
+- [ ] Add a `--force` flag to the applicable commands.
+- [ ] Password auditing including password strength and duplicate passwords.
+- [ ] Password age and expiration.
+- [ ] Password sharing.
