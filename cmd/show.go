@@ -32,7 +32,7 @@ var showCmd = &cobra.Command{
 		}
 
 		// Get password and decrypt
-		file, err := io.ReadFromFile(path.Join(VaultPath, service+".gpg"))
+		file, err := io.ReadFile(path.Join(VaultPath, service+".gpg"))
 		if err != nil {
 			return fmt.Errorf("failed to read file: %v", err)
 		}

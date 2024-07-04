@@ -94,7 +94,7 @@ var generateCmd = &cobra.Command{
 			return fmt.Errorf("failed to encrypt password for service: %s, error: %v", service, err)
 		}
 
-		err = io.WriteToFile(servicePath, encryptedPassword)
+		err = io.WriteFile(servicePath, encryptedPassword)
 		if err != nil {
 			return fmt.Errorf("failed to write encrypted password to .gpg file for service: %s, error: %v", service, err)
 		}

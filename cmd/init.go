@@ -26,7 +26,7 @@ var initCmd = &cobra.Command{
 			return fmt.Errorf("vault already exists at %s", vaultPath)
 		}
 
-		err := io.WriteToFile(path.Join(GopwdPath, ".gopwd.yaml"), []byte(fmt.Sprintf("vaultPath: %s", vaultPath)))
+		err := io.WriteFile(path.Join(GopwdPath, ".gopwd.yaml"), []byte(fmt.Sprintf("vaultPath: %s", vaultPath)))
 		if err != nil {
 			return err
 		}
@@ -38,7 +38,7 @@ var initCmd = &cobra.Command{
 		}
 
 		//write gpg-id to .gpg-id file
-		err = io.WriteToFile(path.Join(vaultPath, ".gpg-id"), []byte(args[0]))
+		err = io.WriteFile(path.Join(vaultPath, ".gpg-id"), []byte(args[0]))
 		if err != nil {
 			return err
 		}

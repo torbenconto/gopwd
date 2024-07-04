@@ -30,7 +30,7 @@ var editCmd = &cobra.Command{
 		}
 
 		// Read password from file
-		password, err := io.ReadFromFile(serviceFile)
+		password, err := io.ReadFile(serviceFile)
 		if err != nil {
 			return fmt.Errorf("failed to read file: %v", err)
 		}
@@ -60,7 +60,7 @@ var editCmd = &cobra.Command{
 		}
 
 		// Check if password was changed
-		newPassword, err := io.ReadFromFile(tmpFile.Name())
+		newPassword, err := io.ReadFile(tmpFile.Name())
 		if err != nil {
 			return fmt.Errorf("failed to read temporary file: %v", err)
 		}
@@ -75,7 +75,7 @@ var editCmd = &cobra.Command{
 			return fmt.Errorf("failed to encrypt password: %v", err)
 		}
 
-		err = io.WriteToFile(serviceFile, encryptedPassword)
+		err = io.WriteFile(serviceFile, encryptedPassword)
 		if err != nil {
 			return fmt.Errorf("failed to write encrypted password to file: %v", err)
 		}

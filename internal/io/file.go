@@ -13,11 +13,11 @@ func RemoveFile(file string) error {
 	return os.Remove(file)
 }
 
-func WriteToFile(file string, data []byte) error {
+func WriteFile(file string, data []byte) error {
 	return os.WriteFile(file, data, 0644)
 }
 
-func ReadFromFile(path string) ([]byte, error) {
+func ReadFile(path string) ([]byte, error) {
 	return os.ReadFile(path)
 }
 
