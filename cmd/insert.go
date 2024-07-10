@@ -14,9 +14,11 @@ import (
 )
 
 var insertCmd = &cobra.Command{
-	Use:   "insert [service] [flags]",
-	Short: "Insert a password for a service",
-	Args:  cobra.ExactArgs(1),
+	Use:               "insert [service] [flags]",
+	Short:             "Insert a password for a service",
+	Args:              cobra.ExactArgs(1),
+	ValidArgsFunction: AutocompleteServices,
+
 	RunE: func(cmd *cobra.Command, args []string) error {
 		service := args[0]
 		servicePath := path.Join(VaultPath, service) + ".gpg"

@@ -66,11 +66,7 @@ func init() {
 			}
 		}
 
-		err := util2.LoadConfig(configFilePath)
-
-		if err != nil {
-			panic(err)
-		}
+		util2.LoadConfig(configFilePath)
 	}
 
 	initCmd.Flags().StringP("path", "p", path.Join(GopwdPath, "vault"), "path to gopwd vault")

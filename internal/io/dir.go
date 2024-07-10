@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -53,17 +53,35 @@ func Cleanup(files []string, dirs []string) error {
 	return nil
 }
 
-// ListServices returns a slice of available service names by reading .gpg files in the vault.
+// listServicesRecursive is a helper function that recursively searches for .gpg files.
+func listServicesRecursive(vaultPath string, services *[]string, relativePath string) error {
+	entries, err := os.ReadDir(vaultPath)
+	if err != nil {
+		return err
+	}
+
+	for _, entry := range entries {
+		fullPath := filepath.Join(vaultPath, entry.Name())
+		if entry.IsDir() {
+			err := listServicesRecursive(fullPath, services, filepath.Join(relativePath, entry.Name()))
+			if err != nil {
+				return err
+			}
+		} else if strings.HasSuffix(entry.Name(), ".gpg") {
+			serviceRelativePath := filepath.Join(relativePath, strings.TrimSuffix(entry.Name(), ".gpg"))
+			*services = append(*services, serviceRelativePath)
+		}
+	}
+
+	return nil
+}
+
+// ListServices returns a slice of available service names by recursively reading .gpg files in the vault.
 func ListServices(vaultPath string) ([]string, error) {
 	var services []string
-	files, err := ioutil.ReadDir(vaultPath)
+	err := listServicesRecursive(vaultPath, &services, "")
 	if err != nil {
 		return nil, err
-	}
-	for _, f := range files {
-		if strings.HasSuffix(f.Name(), ".gpg") {
-			services = append(services, strings.TrimSuffix(f.Name(), ".gpg"))
-		}
 	}
 	return services, nil
 }

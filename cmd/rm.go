@@ -11,9 +11,11 @@ import (
 )
 
 var rmCmd = &cobra.Command{
-	Use:   "rm [service] [flags]",
-	Short: "Remove a password for a service",
-	Args:  cobra.ExactArgs(1),
+	Use:               "rm [service] [flags]",
+	Short:             "Remove a password for a service",
+	Args:              cobra.ExactArgs(1),
+	ValidArgsFunction: AutocompleteServices,
+
 	RunE: func(cmd *cobra.Command, args []string) error {
 		service := args[0]
 		servicePath := path.Join(VaultPath, service) + ".gpg"
@@ -49,6 +51,5 @@ var rmCmd = &cobra.Command{
 }
 
 func init() {
-	rmCmd.RegisterFlagCompletionFunc("service", AutocompleteServices)
 	rootCmd.AddCommand(rmCmd)
 }

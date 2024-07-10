@@ -9,9 +9,11 @@ import (
 )
 
 var cpCmd = &cobra.Command{
-	Use:   "cp [service] [new-service] [flags]",
-	Short: "Copy a password for a service",
-	Args:  cobra.ExactArgs(2),
+	Use:               "cp [service] [new-service] [flags]",
+	Short:             "Copy a password for a service",
+	Args:              cobra.ExactArgs(2),
+	ValidArgsFunction: AutocompleteServices,
+
 	RunE: func(cmd *cobra.Command, args []string) error {
 		service := args[0]
 		newService := args[1]
@@ -48,8 +50,5 @@ var cpCmd = &cobra.Command{
 }
 
 func init() {
-	cpCmd.RegisterFlagCompletionFunc("service", AutocompleteServices)
-	cpCmd.RegisterFlagCompletionFunc("new-service", AutocompleteServices)
-
 	rootCmd.AddCommand(cpCmd)
 }

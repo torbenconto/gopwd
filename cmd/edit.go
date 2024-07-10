@@ -13,9 +13,11 @@ import (
 )
 
 var editCmd = &cobra.Command{
-	Use:   "edit [service] [flags]",
-	Short: "Edit a password for a service",
-	Args:  cobra.ExactArgs(1),
+	Use:               "edit [service] [flags]",
+	Short:             "Edit a password for a service",
+	Args:              cobra.ExactArgs(1),
+	ValidArgsFunction: AutocompleteServices,
+
 	RunE: func(cmd *cobra.Command, args []string) error {
 		serviceFile := path.Join(VaultPath, args[0]+".gpg")
 		// Check if service exists
@@ -93,7 +95,5 @@ var editCmd = &cobra.Command{
 }
 
 func init() {
-	editCmd.RegisterFlagCompletionFunc("service", AutocompleteServices)
-
 	rootCmd.AddCommand(editCmd)
 }

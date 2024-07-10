@@ -14,9 +14,10 @@ import (
 )
 
 var showCmd = &cobra.Command{
-	Use:   "show [service] [flags]",
-	Short: "Show a password for a service",
-	Args:  cobra.ExactArgs(1),
+	Use:               "show [service] [flags]",
+	Short:             "Show a password for a service",
+	Args:              cobra.ExactArgs(1),
+	ValidArgsFunction: AutocompleteServices,
 
 	RunE: func(cmd *cobra.Command, args []string) error {
 		service := args[0]
@@ -99,7 +100,6 @@ var showCmd = &cobra.Command{
 
 func init() {
 	fmt.Println(VaultPath)
-	showCmd.RegisterFlagCompletionFunc("service", AutocompleteServices)
 	showCmd.Flags().BoolP("qr", "q", false, "Show QR code of password")
 	showCmd.Flags().IntP("line", "l", 0, "Show a specific line of the file")
 	showCmd.Flags().BoolP("copy", "c", false, "Copy password to clipboard")

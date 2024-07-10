@@ -6,7 +6,7 @@ import (
 	"path"
 )
 
-func LoadConfig(configFilePath string) error {
+func LoadConfig(configFilePath string) {
 	if configFilePath == "" {
 		// Load config from default location
 		viper.SetConfigName(".gopwd")
@@ -14,15 +14,14 @@ func LoadConfig(configFilePath string) error {
 		viper.SetConfigType("yaml")
 		err := viper.ReadInConfig()
 		if err != nil {
-			return err
+			panic(err)
 		}
 	} else {
 		// Load config from specified location
 		viper.SetConfigFile(configFilePath)
 		err := viper.ReadInConfig()
 		if err != nil {
-			return err
+			panic(err)
 		}
 	}
-	return nil
 }

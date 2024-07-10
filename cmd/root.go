@@ -49,10 +49,7 @@ func Execute() {
 		}
 
 		// Load config
-		err := util.LoadConfig(configFilePath)
-		if err != nil {
-			panic(err)
-		}
+		util.LoadConfig(configFilePath)
 
 		// check if vaultPath exists
 		// if not, tell the user to run gopwd init
