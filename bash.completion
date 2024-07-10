@@ -410,6 +410,7 @@ _gopwd_cp()
 
     must_have_one_flag=()
     must_have_one_noun=()
+    has_completion_function=1
     noun_aliases=()
 }
 
@@ -432,6 +433,7 @@ _gopwd_edit()
 
     must_have_one_flag=()
     must_have_one_noun=()
+    has_completion_function=1
     noun_aliases=()
 }
 
@@ -484,6 +486,7 @@ _gopwd_generate()
 
     must_have_one_flag=()
     must_have_one_noun=()
+    has_completion_function=1
     noun_aliases=()
 }
 
@@ -565,6 +568,7 @@ _gopwd_insert()
 
     must_have_one_flag=()
     must_have_one_noun=()
+    has_completion_function=1
     noun_aliases=()
 }
 
@@ -587,6 +591,7 @@ _gopwd_rm()
 
     must_have_one_flag=()
     must_have_one_noun=()
+    has_completion_function=1
     noun_aliases=()
 }
 
@@ -623,6 +628,7 @@ _gopwd_show()
 
     must_have_one_flag=()
     must_have_one_noun=()
+    has_completion_function=1
     noun_aliases=()
 }
 
