@@ -42,6 +42,6 @@ install-completion:
 
 install: build install-completion
 	@$(eval DESTDIR := $(or $(DESTDIR),/usr))
-	@install -d $(DESTDIR)$(BINDIR)
-	@install -m 0755 $(GOPWD_OUTPUT) $(DESTDIR)$(BINDIR)/gopwd
+	@sudo install -d $(DESTDIR)$(BINDIR)
+	@sudo install -m 0755 $(GOPWD_OUTPUT) $(DESTDIR)$(BINDIR)/gopwd
 	@printf '%s\n' '$(OK)'
