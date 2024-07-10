@@ -15,6 +15,15 @@ var (
 	VaultPath      string
 )
 
+// AutocompleteServices provides autocompletion for service names.
+func AutocompleteServices(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	services, err := io.ListServices(VaultPath)
+	if err != nil {
+		return nil, cobra.ShellCompDirectiveError
+	}
+	return services, cobra.ShellCompDirectiveNoFileComp
+}
+
 var rootCmd = &cobra.Command{
 	Use:   "gopwd",
 	Short: "gopwd is a password manager",
@@ -53,6 +62,11 @@ func Execute() {
 
 		VaultPath = viper.Get("vaultPath").(string)
 	}
+
+	rootCmd.CompletionOptions.DisableDefaultCmd = true
+	rootCmd.CompletionOptions.HiddenDefaultCmd = true
+	rootCmd.CompletionOptions.DisableNoDescFlag = true
+	rootCmd.CompletionOptions.DisableDescriptions = true
 
 	rootCmd.PersistentFlags().StringVar(&configFilePath, "config", path.Join(GopwdPath, ".gopwd.yaml"), "config file (default is $HOME/.gopwd/.gopwd.yaml)")
 	rootCmd.Execute()

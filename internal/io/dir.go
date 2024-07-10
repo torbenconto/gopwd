@@ -4,7 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
+	"strings"
 )
 
 func GetHomeDir() string {
@@ -49,4 +51,19 @@ func Cleanup(files []string, dirs []string) error {
 	}
 
 	return nil
+}
+
+// ListServices returns a slice of available service names by reading .gpg files in the vault.
+func ListServices(vaultPath string) ([]string, error) {
+	var services []string
+	files, err := ioutil.ReadDir(vaultPath)
+	if err != nil {
+		return nil, err
+	}
+	for _, f := range files {
+		if strings.HasSuffix(f.Name(), ".gpg") {
+			services = append(services, strings.TrimSuffix(f.Name(), ".gpg"))
+		}
+	}
+	return services, nil
 }

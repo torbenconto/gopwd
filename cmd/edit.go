@@ -93,5 +93,7 @@ var editCmd = &cobra.Command{
 }
 
 func init() {
+	editCmd.RegisterFlagCompletionFunc("service", AutocompleteServices)
+
 	rootCmd.AddCommand(editCmd)
 }

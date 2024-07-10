@@ -48,5 +48,8 @@ var cpCmd = &cobra.Command{
 }
 
 func init() {
+	cpCmd.RegisterFlagCompletionFunc("service", AutocompleteServices)
+	cpCmd.RegisterFlagCompletionFunc("new-service", AutocompleteServices)
+
 	rootCmd.AddCommand(cpCmd)
 }
