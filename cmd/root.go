@@ -38,7 +38,7 @@ var rootCmd = &cobra.Command{
 
 func Execute() {
 	rootCmd.PersistentPreRun = func(cmd *cobra.Command, args []string) {
-		if cmd.Name() == "init" {
+		if cmd.Name() == "init" || cmd.Name() == "completion" {
 			return
 		}
 

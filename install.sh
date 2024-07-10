@@ -32,17 +32,17 @@ SHELL_TYPE=$(basename "$SHELL")
 
 case $SHELL_TYPE in
 bash)
-    gopwd autocomplete bash > gopwd_autocomplete.sh
+    gopwd completion bash > gopwd_autocomplete.sh
     echo "source $(pwd)/gopwd_autocomplete.sh" >> ~/.bashrc
     echo "Autocomplete script added to .bashrc. Please restart your shell or source your .bashrc to activate."
     ;;
 zsh)
-    gopwd autocomplete zsh > gopwd_autocomplete.sh
+    gopwd completion zsh > gopwd_autocomplete.sh
     echo "source $(pwd)/gopwd_autocomplete.sh" >> ~/.zshrc
     echo "Autocomplete script added to .zshrc. Please restart your shell or source your .zshrc to activate."
     ;;
 fish)
-    gopwd autocomplete fish > gopwd_autocomplete.fish
+    gopwd completion fish > gopwd_autocomplete.fish
     echo "source $(pwd)/gopwd_autocomplete.fish" >> ~/.config/fish/config.fish
     echo "Autocomplete script added to config.fish. Please restart your shell or source your config.fish to activate."
     ;;
