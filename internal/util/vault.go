@@ -17,7 +17,6 @@ func PrintVaultStructure(vaultPath string) error {
 		}
 
 		for i, entry := range dirEntries {
-			// Skip .gpg-id file
 			if entry.Name() == ".gpg-id" {
 				continue
 			}
@@ -25,30 +24,25 @@ func PrintVaultStructure(vaultPath string) error {
 			isLastEntry := i == len(dirEntries)-1
 			entryName := entry.Name()
 
-			// Remove .gpg extension from file names
 			if strings.HasSuffix(entryName, ".gpg") {
 				entryName = strings.TrimSuffix(entryName, ".gpg")
 			}
 
-			// Determine the correct prefix
 			var linePrefix string
-			if isLast {
-				linePrefix = prefix + "    " // No vertical line needed for the last item
+			if isLastEntry {
+				linePrefix = prefix + "    "
 			} else {
 				linePrefix = prefix + "│   "
 			}
 
 			if entry.IsDir() {
-				// Print directory with the appropriate tree branch
 				if isLastEntry {
 					fmt.Println(prefix + "└── " + entryName)
 				} else {
 					fmt.Println(prefix + "├── " + entryName)
 				}
-				// Recursively print the structure of the directory
 				printStructure(filepath.Join(path, entryName), linePrefix, isLastEntry)
 			} else {
-				// Print file with the appropriate tree branch
 				if isLastEntry {
 					fmt.Println(prefix + "└── " + entryName)
 				} else {
@@ -58,7 +52,6 @@ func PrintVaultStructure(vaultPath string) error {
 		}
 	}
 
-	// Start the recursive print from the root of the vault with an empty prefix
-	printStructure(vaultPath, "", true)
+	printStructure(vaultPath, "", false)
 	return nil
 }
