@@ -33,6 +33,7 @@ clean:
 	@echo " [OK]"
 
 install-completion:
+	@$(eval DESTDIR := $(or $(DESTDIR),/usr))
 	@install -d $(DESTDIR)$(PREFIX)/share/zsh/site-functions $(DESTDIR)$(PREFIX)/share/bash-completion/completions $(DESTDIR)$(PREFIX)/share/fish/vendor_completions.d
 	@install -m 0644 $(ZSH_COMPLETION_OUTPUT) $(DESTDIR)$(PREFIX)/share/zsh/site-functions/_gopwd
 	@install -m 0644 $(BASH_COMPLETION_OUTPUT) $(DESTDIR)$(PREFIX)/share/bash-completion/completions/gopwd
@@ -40,6 +41,7 @@ install-completion:
 	@printf '%s\n' '$(OK)'
 
 install: build install-completion
+	@$(eval DESTDIR := $(or $(DESTDIR),/usr))
 	@install -d $(DESTDIR)$(BINDIR)
 	@install -m 0755 $(GOPWD_OUTPUT) $(DESTDIR)$(BINDIR)/gopwd
 	@printf '%s\n' '$(OK)'
