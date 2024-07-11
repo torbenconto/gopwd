@@ -62,26 +62,21 @@ var upCmd = &cobra.Command{
 	Use:   "up",
 	Short: "Start the API server",
 	Run: func(cmd *cobra.Command, args []string) {
-		daemonFlag, _ := cmd.Flags().GetBool("daemon")
 		portFlag, _ := cmd.Flags().GetString("port")
 
-		if daemonFlag {
-			// Remove log file if it exists
-			logFile := filepath.Join(GopwdPath, "gopwd.log")
-			if io.Exists(logFile) {
-				err := os.Remove(logFile)
-				if err != nil {
-					fmt.Println("Error removing log file:", err)
-					return
-				}
+		// Remove log file if it exists
+		logFile := filepath.Join(GopwdPath, "gopwd.log")
+		if io.Exists(logFile) {
+			err := os.Remove(logFile)
+			if err != nil {
+				fmt.Println("Error removing log file:", err)
+				return
 			}
-			// Start the API server as a daemon
-			api.RunDaemon(GopwdPath, VaultPath, ":"+string(portFlag), os.Args)
-			fmt.Println("API server started as daemon")
-			fmt.Println("NEVER EVER EVER EXPOSE THIS TO THE INTERNET, IT IS NOT SECURE (LAN ONLY)")
-		} else {
-			// Start the API server
 		}
+		// Start the API server as a daemon
+		api.RunDaemon(GopwdPath, VaultPath, ":"+string(portFlag), os.Args)
+		fmt.Println("API server started as daemon")
+		fmt.Println("NEVER EVER EVER EXPOSE THIS TO THE INTERNET, IT IS NOT SECURE (LAN ONLY)")
 	},
 }
 
@@ -133,7 +128,6 @@ func init() {
 	apiCmd.AddCommand(downCmd)
 	apiCmd.AddCommand(upCmd)
 	upCmd.Flags().StringP("port", "p", "8076", "Port to run the API server on")
-	upCmd.Flags().BoolP("daemon", "d", true, "Run the API server as a daemon")
 
 	rootCmd.AddCommand(apiCmd)
 }
