@@ -4,7 +4,10 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/sevlyar/go-daemon"
+	"github.com/torbenconto/gopwd/internal/crypt/gpg"
 	"github.com/torbenconto/gopwd/internal/io"
+	"github.com/torbenconto/gopwd/internal/ssl"
+	"github.com/torbenconto/gopwd/internal/util"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -33,15 +36,87 @@ func setupRouter(vaultPath string) *gin.Engine {
 		})
 	})
 
+	type getServiceRequest struct {
+		Service     string `json:"service"`
+		GpgPassword string `json:"gpg_password"`
+	}
+	r.POST("/get", func(c *gin.Context) {
+		var req getServiceRequest
+		if err := c.BindJSON(&req); err != nil {
+			c.JSON(400, gin.H{
+				"message": "invalid request",
+			})
+			return
+		}
+
+		file, err := io.ReadFile(filepath.Join(vaultPath, req.Service+".gpg"))
+		if err != nil {
+			c.JSON(500, gin.H{
+				"message": "error reading file",
+			})
+			return
+		}
+
+		// Decrypt file
+		gpgID, err := util.ReadGPGID(filepath.Join(vaultPath, ".gpg-id"))
+		if err != nil {
+			c.JSON(500, gin.H{
+				"message": "error reading gpg-id",
+			})
+			return
+		}
+
+		args := []string{"--yes", "--compress-algo=none", "--no-encrypt-to", "--no-auto-check-trustdb", "--batch"}
+		if req.GpgPassword != "" {
+			args = append(args, "--passphrase", req.GpgPassword)
+		}
+
+		// Initialize GPG module with configuration
+		gpgModule := gpg.NewGPG(gpgID, gpg.Config{
+			Args: args,
+		})
+
+		// Attempt to decrypt the file
+		decrypted, err := gpgModule.Decrypt(file)
+		if err != nil {
+			// Log the error for diagnostics
+			fmt.Printf("Error decrypting file: %v\n", err)
+			c.JSON(500, gin.H{
+				"message": "error decrypting file",
+			})
+			return
+		}
+
+		// Successfully decrypted, return the content
+		c.JSON(200, gin.H{
+			"password": string(decrypted),
+		})
+	})
+
 	return r
 }
 
-func start(vaultPath string, addr string) {
+func start(vaultPath, addr, certPath, keyPath string) {
+	// Check if cert exists
+	if !io.Exists(certPath) || !io.Exists(keyPath) {
+		// Generate cert
+		err := ssl.GenerateSSLCert(certPath, keyPath)
+		if err != nil {
+			fmt.Println("Error generating SSL cert:", err)
+			return
+		}
+	}
+
 	r := setupRouter(vaultPath)
-	r.Run(addr)
+	err := r.RunTLS(addr, certPath, keyPath)
+	if err != nil {
+		fmt.Println("Error starting server:", err)
+		return
+	}
+
 }
 
-func RunDaemon(gopwdPath, vaultPath, addr string, cmd []string) {
+func RunDaemon(gopwdPath, vaultPath, addr string, cmd []string, certPath, keyPath string) {
 	daemonContext := &daemon.Context{
 		PidFileName: filepath.Join(gopwdPath, "gopwd.pid"),
 		PidFilePerm: 0644,
@@ -73,5 +148,5 @@ func RunDaemon(gopwdPath, vaultPath, addr string, cmd []string) {
 		os.Exit(0)
 	}()
 
-	start(vaultPath, addr)
+	start(vaultPath, addr, certPath, keyPath)
 }

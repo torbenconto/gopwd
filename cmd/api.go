@@ -64,17 +64,8 @@ var upCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		portFlag, _ := cmd.Flags().GetString("port")
 
-		// Remove log file if it exists
-		logFile := filepath.Join(GopwdPath, "gopwd.log")
-		if io.Exists(logFile) {
-			err := os.Remove(logFile)
-			if err != nil {
-				fmt.Println("Error removing log file:", err)
-				return
-			}
-		}
 		// Start the API server as a daemon
-		api.RunDaemon(GopwdPath, VaultPath, ":"+string(portFlag), os.Args)
+		api.RunDaemon(GopwdPath, VaultPath, ":"+string(portFlag), os.Args, filepath.Join(GopwdPath, "cert.pem"), filepath.Join(GopwdPath, "key.pem"))
 		fmt.Println("API server started as daemon")
 		fmt.Println("NEVER EVER EVER EXPOSE THIS TO THE INTERNET, IT IS NOT SECURE (LAN ONLY)")
 	},

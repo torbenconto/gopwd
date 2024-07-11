@@ -5,7 +5,7 @@ import (
 )
 
 var (
-	defaultArgs = []string{"--quiet", "--yes", "--compress-algo=none", "--no-encrypt-to", "--no-auto-check-trustdb"}
+	defaultArgs = []string{"--quiet", "--yes", "--compress-algo=none", "--no-encrypt-to", "--no-auto-check-trustdb", "--pinentry-mode=loopback"}
 )
 
 type GPG struct {
