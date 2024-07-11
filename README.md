@@ -7,9 +7,16 @@ gopwd is a (cross platform 😁) command-line password manager written in Golang
 
 ## Installation Guide
 
+For the first class installation (unix only), `go` and `make` are required.
+
 First install `gpg` if it isn't already installed. For windows users you can download ![Gpg4win](https://www.gpg4win.org/get-gpg4win.html).
 
 To install and use `gopwd`, follow the steps below:
+
+### First class installation (auto completions) (unix only)
+```bash
+curl -s https://raw.githubusercontent.com/torbenconto/gopwd/main/install.sh | bash
+```
 
 ### Easy Installation
 Must have `go` installed

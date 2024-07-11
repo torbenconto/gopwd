@@ -7,6 +7,7 @@ import (
 	"github.com/torbenconto/gopwd/internal/io"
 	"github.com/torbenconto/gopwd/internal/util"
 	"path"
+	"strings"
 )
 
 var (
@@ -30,7 +31,7 @@ var rootCmd = &cobra.Command{
 	Long:  "gopwd is a password manager that stores your passwords in an encrypted file",
 
 	RunE: func(cmd *cobra.Command, args []string) error {
-		fmt.Println("vault")
+		fmt.Println(strings.Split(VaultPath, "/")[len(strings.Split(VaultPath, "/"))-1])
 		util.PrintVaultStructure(VaultPath)
 		return nil
 	},
