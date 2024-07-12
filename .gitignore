@@ -1,2 +1,5 @@
 dist
 /.idea/discord.xml
+gopwd
+gopwd.log
+gopwd.pid
