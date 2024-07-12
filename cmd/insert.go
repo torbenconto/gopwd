@@ -5,12 +5,9 @@ import (
 	"github.com/atotto/clipboard"
 	"github.com/spf13/cobra"
 	"github.com/torbenconto/gopwd/internal/crypt/gpg"
-	"github.com/torbenconto/gopwd/internal/io"
 	"github.com/torbenconto/gopwd/internal/termio"
 	"github.com/torbenconto/gopwd/internal/util"
-	"os"
 	"path"
-	"strings"
 )
 
 var insertCmd = &cobra.Command{
@@ -22,46 +19,10 @@ var insertCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		service := args[0]
 		servicePath := path.Join(VaultPath, service) + ".gpg"
-		var createdDirs []string
-		var createdFiles []string
-		var success = false
 
 		// Flags
 		copyFlag, _ := cmd.Flags().GetBool("copy")
 		multilineFlag, _ := cmd.Flags().GetBool("multiline")
-
-		defer func() {
-			if !success {
-				// Cleanup created directories and files if command fails
-				err := io.Cleanup(createdDirs, createdFiles)
-				if err != nil {
-					fmt.Printf("failed to cleanup created directories and files: %v\n", err)
-				}
-			}
-		}()
-
-		dirs := strings.Split(service, "/")
-		var dirPath string
-		if len(dirs) > 1 {
-			dirPath = path.Join(VaultPath, strings.Join(dirs[:len(dirs)-1], "/"))
-			if !io.Exists(dirPath) {
-				err := os.MkdirAll(dirPath, 0755)
-				if err != nil {
-					return fmt.Errorf("failed to create directory structure for service: %s, error: %v", service, err)
-				}
-				createdDirs = append(createdDirs, dirPath)
-			}
-		}
-
-		if !io.Exists(servicePath) {
-			_, err := io.CreateFile(servicePath)
-			if err != nil {
-				return fmt.Errorf("failed to create .gpg file for service: %s, error: %v", service, err)
-			}
-			createdFiles = append(createdFiles, servicePath)
-		} else {
-			return fmt.Errorf("service already exists in vault: %s", service)
-		}
 
 		var password string
 		var err error
@@ -90,10 +51,7 @@ var insertCmd = &cobra.Command{
 			return fmt.Errorf("failed to encrypt password for service: %s, error: %v", service, err)
 		}
 
-		err = io.WriteFile(servicePath, encryptedPassword)
-		if err != nil {
-			return fmt.Errorf("failed to write encrypted password to .gpg file for service: %s, error: %v", service, err)
-		}
+		err = util.CreateStructureAndClean(service, VaultPath, servicePath, encryptedPassword)
 
 		if copyFlag {
 			err = clipboard.WriteAll(password)
@@ -101,11 +59,9 @@ var insertCmd = &cobra.Command{
 				return fmt.Errorf("failed to copy password to clipboard, error: %v", err)
 			}
 			fmt.Printf("Copied password for %s to clipboard\n", service)
-			success = true
 			return nil
 		}
 
-		success = true
 		fmt.Printf("Password for %s inserted successfully\n", service)
 
 		return nil

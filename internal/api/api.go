@@ -6,10 +6,12 @@ import (
 	"github.com/sevlyar/go-daemon"
 	"github.com/torbenconto/gopwd/internal/crypt/gpg"
 	"github.com/torbenconto/gopwd/internal/io"
+	"github.com/torbenconto/gopwd/internal/pwgen"
 	"github.com/torbenconto/gopwd/internal/ssl"
 	"github.com/torbenconto/gopwd/internal/util"
 	"os"
 	"os/signal"
+	"path"
 	"path/filepath"
 	"syscall"
 )
@@ -26,7 +28,7 @@ func setupRouter(vaultPath string) *gin.Engine {
 		services, err := io.ListServices(vaultPath)
 		if err != nil {
 			c.JSON(500, gin.H{
-				"message": "error listing services",
+				"message": "error listing services: " + err.Error(),
 			})
 			return
 		}
@@ -36,15 +38,22 @@ func setupRouter(vaultPath string) *gin.Engine {
 		})
 	})
 
-	type getServiceRequest struct {
-		Service     string `json:"service"`
-		GpgPassword string `json:"gpg_password"`
-	}
 	r.POST("/get", func(c *gin.Context) {
-		var req getServiceRequest
+		var req struct {
+			Service     string `json:"service"`
+			GpgPassword string `json:"gpg_password"`
+		}
 		if err := c.BindJSON(&req); err != nil {
 			c.JSON(400, gin.H{
 				"message": "invalid request",
+			})
+			return
+		}
+
+		// Check if service exists
+		if !io.Exists(filepath.Join(vaultPath, req.Service+".gpg")) {
+			c.JSON(400, gin.H{
+				"message": "service doesn't exist",
 			})
 			return
 		}
@@ -61,12 +70,12 @@ func setupRouter(vaultPath string) *gin.Engine {
 		gpgID, err := util.ReadGPGID(filepath.Join(vaultPath, ".gpg-id"))
 		if err != nil {
 			c.JSON(500, gin.H{
-				"message": "error reading gpg-id",
+				"message": "error reading gpg-id: " + err.Error(),
 			})
 			return
 		}
 
-		args := []string{"--yes", "--compress-algo=none", "--no-encrypt-to", "--no-auto-check-trustdb", "--batch"}
+		args := []string{"--quiet", "--yes", "--compress-algo=none", "--no-encrypt-to", "--no-auto-check-trustdb", "--batch", "--pinentry-mode=loopback"}
 		if req.GpgPassword != "" {
 			args = append(args, "--passphrase", req.GpgPassword)
 		}
@@ -79,10 +88,8 @@ func setupRouter(vaultPath string) *gin.Engine {
 		// Attempt to decrypt the file
 		decrypted, err := gpgModule.Decrypt(file)
 		if err != nil {
-			// Log the error for diagnostics
-			fmt.Printf("Error decrypting file: %v\n", err)
 			c.JSON(500, gin.H{
-				"message": "error decrypting file",
+				"message": "error decrypting file: " + err.Error(),
 			})
 			return
 		}
@@ -90,6 +97,222 @@ func setupRouter(vaultPath string) *gin.Engine {
 		// Successfully decrypted, return the content
 		c.JSON(200, gin.H{
 			"password": string(decrypted),
+		})
+	})
+	r.PATCH("/update", func(c *gin.Context) {
+		var req struct {
+			Service    string `json:"service"`
+			NewContent string `json:"new_content"`
+		}
+		if err := c.BindJSON(&req); err != nil {
+			c.JSON(400, gin.H{
+				"message": "invalid request",
+			})
+			return
+		}
+
+		// Check if service exists
+		if !io.Exists(filepath.Join(vaultPath, req.Service+".gpg")) {
+			c.JSON(400, gin.H{
+				"message": "service doesn't exist",
+			})
+			return
+		}
+
+		// Encrypt the password
+		gpgID, err := util.ReadGPGID(filepath.Join(vaultPath, ".gpg-id"))
+		if err != nil {
+			c.JSON(500, gin.H{
+				"message": "error reading gpg-id",
+			})
+			return
+		}
+
+		// Initialize GPG module with configuration
+		gpgModule := gpg.NewGPG(gpgID, gpg.Config{})
+
+		// Encrypt the password
+		encrypted, err := gpgModule.Encrypt([]byte(req.NewContent))
+		if err != nil {
+			c.JSON(500, gin.H{
+				"message": "error encrypting password",
+			})
+			return
+		}
+
+		// Write the encrypted password to the file
+		err = io.WriteFile(filepath.Join(vaultPath, req.Service+".gpg"), encrypted)
+		if err != nil {
+			c.JSON(500, gin.H{
+				"message": "error writing file",
+			})
+			return
+		}
+
+		c.JSON(200, gin.H{
+			"message": "password updated",
+		})
+	})
+	r.DELETE("/delete", func(c *gin.Context) {
+		var req struct {
+			Service string `json:"service"`
+		}
+		if err := c.BindJSON(&req); err != nil {
+			c.JSON(400, gin.H{
+				"message": "invalid request",
+			})
+			return
+		}
+
+		// Check if service exists
+		if !io.Exists(filepath.Join(vaultPath, req.Service+".gpg")) {
+			c.JSON(400, gin.H{
+				"message": "service doesn't exist",
+			})
+			return
+		}
+
+		err := os.Remove(filepath.Join(vaultPath, req.Service+".gpg"))
+		if err != nil {
+			c.JSON(500, gin.H{
+				"message": "error deleting file",
+			})
+			return
+		}
+
+		c.JSON(200, gin.H{
+			"message": "file deleted",
+		})
+	})
+	r.POST("/insert", func(c *gin.Context) {
+		var req struct {
+			Service string `json:"service"`
+			Content string `json:"content"`
+		}
+		if err := c.BindJSON(&req); err != nil {
+			c.JSON(400, gin.H{
+				"message": "invalid request: " + err.Error(),
+			})
+			return
+		}
+
+		// Check if service already exists
+		if io.Exists(filepath.Join(vaultPath, req.Service+".gpg")) {
+			c.JSON(400, gin.H{
+				"message": "service already exists",
+			})
+			return
+		}
+
+		// Encrypt the password
+		gpgID, err := util.ReadGPGID(filepath.Join(vaultPath, ".gpg-id"))
+		if err != nil {
+			c.JSON(500, gin.H{
+				"message": "error reading gpg-id: " + err.Error(),
+			})
+			return
+		}
+
+		// Initialize GPG module with configuration
+		gpgModule := gpg.NewGPG(gpgID, gpg.Config{})
+
+		// Encrypt the password
+		encrypted, err := gpgModule.Encrypt([]byte(req.Content))
+		if err != nil {
+			c.JSON(500, gin.H{
+				"message": "error encrypting password: " + err.Error(),
+			})
+			return
+		}
+
+		err = util.CreateStructureAndClean(req.Service, vaultPath, filepath.Join(vaultPath, req.Service+".gpg"), encrypted)
+
+		c.JSON(200, gin.H{
+			"message": "password inserted",
+		})
+	})
+	r.POST("/generate", func(c *gin.Context) {
+		req := &struct {
+			Service   string `json:"service"`
+			Length    int    `json:"length"`
+			Humanized bool   `json:"humanized"`
+			Symbols   bool   `json:"symbols"`
+			Numbers   bool   `json:"numbers"`
+			Lowercase bool   `json:"lowercase"`
+			Uppercase bool   `json:"uppercase"`
+		}{
+			Length:    16,
+			Symbols:   true,
+			Numbers:   true,
+			Lowercase: true,
+			Uppercase: true,
+		}
+
+		servicePath := path.Join(vaultPath, req.Service) + ".gpg"
+
+		if err := c.BindJSON(&req); err != nil {
+			c.JSON(400, gin.H{
+				"message": "invalid request",
+			})
+			return
+		}
+
+		if io.Exists(servicePath) {
+			c.JSON(400, gin.H{
+				"message": "service already exists",
+			})
+			return
+		}
+
+		// Generate password
+		passwordGenerator := pwgen.NewPasswordGenerator(pwgen.PasswordGeneratorConfig{
+			Length:    req.Length,
+			Humanized: req.Humanized,
+			Symbols:   req.Symbols,
+			Numbers:   req.Numbers,
+			Lowercase: req.Lowercase,
+			Uppercase: req.Uppercase,
+		})
+
+		password, err := passwordGenerator.Generate()
+		if err != nil {
+			c.JSON(500, gin.H{
+				"message": "error generating password: " + err.Error(),
+			})
+			return
+		}
+
+		gpgID, err := util.ReadGPGID(filepath.Join(vaultPath, ".gpg-id"))
+		if err != nil {
+			c.JSON(500, gin.H{
+				"message": "error reading gpg-id: " + err.Error(),
+			})
+			return
+		}
+
+		// Initialize GPG module with configuration
+		gpgModule := gpg.NewGPG(gpgID, gpg.Config{})
+
+		// Encrypt the password
+		encrypted, err := gpgModule.Encrypt([]byte(password))
+		if err != nil {
+			c.JSON(500, gin.H{
+				"message": "error encrypting password: " + err.Error(),
+			})
+			return
+		}
+
+		err = util.CreateStructureAndClean(req.Service, vaultPath, servicePath, encrypted)
+		if err != nil {
+			c.JSON(500, gin.H{
+				"message": "error creating structure: " + err.Error(),
+			})
+			return
+		}
+
+		c.JSON(200, gin.H{
+			"message":  "password generated and inserted",
+			"password": password,
 		})
 	})
 
