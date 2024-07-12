@@ -1,4 +1,3 @@
-FIRST_GOPATH              := $(firstword $(subst :, ,$(GOPATH)))
 GOFILES_BUILD             := $(shell find . -type f -name '*.go' -not -name '*_test.go')
 GOPWD_OUTPUT              ?= gopwd
 GOPWD_REVISION            := $(shell cat COMMIT 2>/dev/null || git rev-parse --short=8 HEAD)
@@ -7,7 +6,7 @@ FISH_COMPLETION_OUTPUT    := fish.completion
 ZSH_COMPLETION_OUTPUT     := zsh.completion
 DATE                      := $(shell date -u '+%FT%T%z')
 GO                        ?= GO111MODULE=on CGO_ENABLED=0 go
-PREFIX                    ?= $(GOPATH)
+PREFIX                    ?= /usr
 BINDIR                    ?= $(PREFIX)/bin
 
 all: build completion
@@ -33,15 +32,13 @@ clean:
 	@echo " [OK]"
 
 install-completion:
-	@$(eval DESTDIR := $(or $(DESTDIR),/usr))
-	@sudo install -d $(DESTDIR)$(PREFIX)/share/zsh/site-functions $(DESTDIR)$(PREFIX)/share/bash-completion/completions $(DESTDIR)$(PREFIX)/share/fish/vendor_completions.d
-	@sudo install -m 0644 $(ZSH_COMPLETION_OUTPUT) $(DESTDIR)$(PREFIX)/share/zsh/site-functions/_gopwd
-	@sudo install -m 0644 $(BASH_COMPLETION_OUTPUT) $(DESTDIR)$(PREFIX)/share/bash-completion/completions/gopwd
-	@sudo install -m 0644 $(FISH_COMPLETION_OUTPUT) $(DESTDIR)$(PREFIX)/share/fish/vendor_completions.d/gopwd.fish
+	@sudo install -d $(PREFIX)/share/zsh/site-functions $(PREFIX)/share/bash-completion/completions $(PREFIX)/share/fish/vendor_completions.d
+	@sudo install -m 0644 $(ZSH_COMPLETION_OUTPUT) $(PREFIX)/share/zsh/site-functions/_gopwd
+	@sudo install -m 0644 $(BASH_COMPLETION_OUTPUT) $(PREFIX)/share/bash-completion/completions/gopwd
+	@sudo install -m 0644 $(FISH_COMPLETION_OUTPUT) $(PREFIX)/share/fish/vendor_completions.d/gopwd.fish
 	@printf '%s\n' '$(OK)'
 
 install: build install-completion
-	@$(eval DESTDIR := $(or $(DESTDIR),/usr))
-	@sudo install -d $(DESTDIR)$(BINDIR)
-	@sudo install -m 0755 $(GOPWD_OUTPUT) $(DESTDIR)$(BINDIR)/gopwd
+	@sudo install -d $(BINDIR)
+	@sudo install -m 0755 $(GOPWD_OUTPUT) $(BINDIR)/gopwd
 	@printf '%s\n' '$(OK)'
