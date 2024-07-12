@@ -99,7 +99,7 @@ func setupRouter(vaultPath string) *gin.Engine {
 			"password": string(decrypted),
 		})
 	})
-	r.PATCH("/update", func(c *gin.Context) {
+	r.POST("/update", func(c *gin.Context) {
 		var req struct {
 			Service    string `json:"service"`
 			NewContent string `json:"new_content"`
@@ -153,10 +153,11 @@ func setupRouter(vaultPath string) *gin.Engine {
 			"message": "password updated",
 		})
 	})
-	r.DELETE("/delete", func(c *gin.Context) {
+	r.POST("/delete", func(c *gin.Context) {
 		var req struct {
 			Service string `json:"service"`
 		}
+
 		if err := c.BindJSON(&req); err != nil {
 			c.JSON(400, gin.H{
 				"message": "invalid request",
@@ -175,9 +176,27 @@ func setupRouter(vaultPath string) *gin.Engine {
 		err := os.Remove(filepath.Join(vaultPath, req.Service+".gpg"))
 		if err != nil {
 			c.JSON(500, gin.H{
-				"message": "error deleting file",
+				"message": "error deleting file: " + err.Error(),
 			})
 			return
+		}
+
+		dirPath := path.Dir(filepath.Join(vaultPath, req.Service+".gpg"))
+		isEmpty, err := io.IsDirEmpty(dirPath)
+		if err != nil {
+			c.JSON(500, gin.H{
+				"message": "error checking if directory is empty: " + err.Error(),
+			})
+			return
+		}
+		if isEmpty && dirPath != vaultPath {
+			err := os.Remove(dirPath)
+			if err != nil {
+				c.JSON(500, gin.H{
+					"message": "error removing directory: " + err.Error(),
+				})
+				return
+			}
 		}
 
 		c.JSON(200, gin.H{
@@ -248,14 +267,14 @@ func setupRouter(vaultPath string) *gin.Engine {
 			Uppercase: true,
 		}
 
-		servicePath := path.Join(vaultPath, req.Service) + ".gpg"
-
 		if err := c.BindJSON(&req); err != nil {
 			c.JSON(400, gin.H{
 				"message": "invalid request",
 			})
 			return
 		}
+
+		servicePath := path.Join(vaultPath, req.Service) + ".gpg"
 
 		if io.Exists(servicePath) {
 			c.JSON(400, gin.H{
