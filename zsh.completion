@@ -1,4 +1,3 @@
-
 #compdef gopwd
 compdef _gopwd gopwd
 

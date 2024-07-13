@@ -1,4 +1,3 @@
-
 # fish completion for gopwd                                -*- shell-script -*-
 
 function __gopwd_debug
