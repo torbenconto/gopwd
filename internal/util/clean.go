@@ -2,10 +2,11 @@ package util
 
 import (
 	"fmt"
-	"github.com/torbenconto/gopwd/internal/io"
 	"os"
 	"path"
 	"strings"
+
+	"github.com/torbenconto/gopwd/internal/io"
 )
 
 // CreateStructureAndClean creates the directory structure for a service and cleans up if an error occurs, helper function for insert and generate commands

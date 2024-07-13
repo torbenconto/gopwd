@@ -3,9 +3,10 @@ package pwgen
 import (
 	"crypto/rand"
 	"fmt"
-	internalRand "github.com/torbenconto/gopwd/internal/crypt/rand"
 	"math/big"
 	"strings"
+
+	internalRand "github.com/torbenconto/gopwd/internal/crypt/rand"
 )
 
 var (

@@ -2,8 +2,9 @@ package qr
 
 import (
 	"io"
-	"rsc.io/qr"
 	"strings"
+
+	"rsc.io/qr"
 )
 
 const (

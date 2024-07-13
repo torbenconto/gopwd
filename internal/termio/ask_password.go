@@ -2,8 +2,9 @@ package termio
 
 import (
 	"fmt"
-	"golang.org/x/term"
 	"syscall"
+
+	"golang.org/x/term"
 )
 
 func PromptPassword() (string, error) {

@@ -2,10 +2,12 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/spf13/cobra"
-	"github.com/torbenconto/gopwd/internal/io"
 	"os"
 	"path"
+
+	"github.com/spf13/cobra"
+
+	"github.com/torbenconto/gopwd/internal/io"
 )
 
 var renameCmd = &cobra.Command{

@@ -1,9 +1,11 @@
 package util
 
 import (
-	"github.com/spf13/viper"
-	"github.com/torbenconto/gopwd/internal/io"
 	"path"
+
+	"github.com/spf13/viper"
+
+	"github.com/torbenconto/gopwd/internal/io"
 )
 
 func LoadConfig(configFilePath string) {

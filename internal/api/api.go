@@ -2,18 +2,20 @@ package api
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/sevlyar/go-daemon"
-	"github.com/torbenconto/gopwd/internal/crypt/gpg"
-	"github.com/torbenconto/gopwd/internal/io"
-	"github.com/torbenconto/gopwd/internal/pwgen"
-	"github.com/torbenconto/gopwd/internal/ssl"
-	"github.com/torbenconto/gopwd/internal/util"
 	"os"
 	"os/signal"
 	"path"
 	"path/filepath"
 	"syscall"
+
+	"github.com/gin-gonic/gin"
+	"github.com/sevlyar/go-daemon"
+
+	"github.com/torbenconto/gopwd/internal/crypt/gpg"
+	"github.com/torbenconto/gopwd/internal/io"
+	"github.com/torbenconto/gopwd/internal/pwgen"
+	"github.com/torbenconto/gopwd/internal/ssl"
+	"github.com/torbenconto/gopwd/internal/util"
 )
 
 func setupRouter(vaultPath string) *gin.Engine {

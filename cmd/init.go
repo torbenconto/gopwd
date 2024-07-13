@@ -2,10 +2,12 @@ package cmd
 
 import (
 	"fmt"
+	"path"
+
 	"github.com/spf13/cobra"
+
 	"github.com/torbenconto/gopwd/internal/io"
 	util2 "github.com/torbenconto/gopwd/internal/util"
-	"path"
 )
 
 var initCmd = &cobra.Command{
@@ -15,8 +17,8 @@ var initCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		vaultPath, _ := cmd.Flags().GetString("path")
 
-		//check if vaultPath exists
-		//if not, create it
+		// check if vaultPath exists
+		// if not, create it
 		if !io.Exists(vaultPath) {
 			err := io.CreateDir(vaultPath)
 			if err != nil {
@@ -31,13 +33,13 @@ var initCmd = &cobra.Command{
 			return err
 		}
 
-		//create .gpg-id file in vaultPath
+		// create .gpg-id file in vaultPath
 		_, err = io.CreateFile(path.Join(vaultPath, ".gpg-id"))
 		if err != nil {
 			return err
 		}
 
-		//write gpg-id to .gpg-id file
+		// write gpg-id to .gpg-id file
 		err = io.WriteFile(path.Join(vaultPath, ".gpg-id"), []byte(args[0]))
 		if err != nil {
 			return err

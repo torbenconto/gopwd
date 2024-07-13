@@ -2,14 +2,16 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+	"os/exec"
+	"path"
+
 	"github.com/spf13/cobra"
+
 	"github.com/torbenconto/gopwd/internal/crypt/gpg"
 	editor "github.com/torbenconto/gopwd/internal/editor_darwin"
 	"github.com/torbenconto/gopwd/internal/io"
 	"github.com/torbenconto/gopwd/internal/util"
-	"os"
-	"os/exec"
-	"path"
 )
 
 var editCmd = &cobra.Command{

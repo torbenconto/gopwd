@@ -2,15 +2,17 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+	"path"
+	"strings"
+
 	"github.com/atotto/clipboard"
 	"github.com/spf13/cobra"
+
 	"github.com/torbenconto/gopwd/internal/crypt/gpg"
 	"github.com/torbenconto/gopwd/internal/io"
 	"github.com/torbenconto/gopwd/internal/qr"
 	"github.com/torbenconto/gopwd/internal/util"
-	"os"
-	"path"
-	"strings"
 )
 
 var showCmd = &cobra.Command{
@@ -42,7 +44,6 @@ var showCmd = &cobra.Command{
 		if err != nil {
 			return fmt.Errorf("failed to read gpg-id: %v", err)
 		}
-
 		GPGModule := gpg.NewGPG(GPGID, gpg.Config{})
 
 		password, err := GPGModule.Decrypt(file)

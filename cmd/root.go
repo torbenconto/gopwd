@@ -2,12 +2,14 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
-	"github.com/torbenconto/gopwd/internal/io"
-	"github.com/torbenconto/gopwd/internal/util"
 	"path"
 	"strings"
+
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+
+	"github.com/torbenconto/gopwd/internal/io"
+	"github.com/torbenconto/gopwd/internal/util"
 )
 
 var (

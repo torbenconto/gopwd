@@ -2,10 +2,12 @@ package cmd
 
 import (
 	"fmt"
+	"path"
+
 	"github.com/spf13/cobra"
+
 	"github.com/torbenconto/gopwd/internal/io"
 	"github.com/torbenconto/gopwd/internal/termio"
-	"path"
 )
 
 var cpCmd = &cobra.Command{
