@@ -213,7 +213,23 @@ To copy a password from one service to another, use the following command:
 ```
 gopwd cp <service> <new service>
 ```
+## Api (POSIX only)
+To start the api server, use the following command:
+```
+gopwd api up
+```
 
+To check the status of the api server, use the following command:
+```
+gopwd api status
+```
+
+To stop the api server, use the following command:
+```
+gopwd api down
+```
+
+default port is 8076, append `-p <port>` to change the port.
 ## Future Features
 
 - [ ] Add a `--force` flag to the applicable commands.
