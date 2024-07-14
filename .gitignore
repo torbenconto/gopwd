@@ -1,5 +1,15 @@
-dist
-/.idea/discord.xml
+# IDEA config
+.idea
+
+# Binaries from testing
 gopwd
 gopwd.log
 gopwd.pid
+
+# Testing of backup
+test
+test.yaml
+*.tar.gz
+
+# Goreleaser
+dist
