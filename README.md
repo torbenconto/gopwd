@@ -7,6 +7,13 @@
 gopwd is a (cross platform 😁) command-line password manager written in Golang. It provides a secure, convenient, and
 portable way to store and manage your passwords.
 
+## Status
+Works pretty well, but still in development. If you find any bugs or have any feature requests, please open an issue.
+
+The only part of this project that is somewhat janky is the publishing and installation process (unless you just use the install script). The rest of the project is pretty solid.
+
+api features are not stable yet and not cross-platform yet, so use at your own risk.
+
 ## Installation Guide
 
 For the first class installation (unix only), `go` and `make` are required.
@@ -110,6 +117,7 @@ This command initializes a vault at `/home/'your username'/vault`.
 
 You can change the config settings anytime using the above commands.
 
+## Run `gopwd help` to see all available commands. Below are some of the most commonly used commands.
 ## Commands
 
 ### Inserting a Password
@@ -208,28 +216,7 @@ To edit a password or add metadata such as an email or username, use the followi
 gopwd edit <service>
 ```
 
-To copy a password from one service to another, use the following command:
 
-```
-gopwd cp <service> <new service>
-```
-## Api (POSIX only)
-To start the api server, use the following command:
-```
-gopwd api up
-```
-
-To check the status of the api server, use the following command:
-```
-gopwd api status
-```
-
-To stop the api server, use the following command:
-```
-gopwd api down
-```
-
-default port is 8076, append `-p <port>` to change the port.
 ## Future Features
 
 - [ ] Add a `--force` flag to the applicable commands.
