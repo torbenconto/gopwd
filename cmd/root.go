@@ -41,13 +41,16 @@ var rootCmd = &cobra.Command{
 
 func Execute() {
 	rootCmd.PersistentPreRun = func(cmd *cobra.Command, args []string) {
-		if cmd.Name() == "init" || cmd.Name() == "completion" || cmd.Name() == "__complete" {
+		if cmd.Name() == "init" || cmd.Name() == "completion" {
 			return
 		}
 
 		// check if .goPwd directory exists
 		// if not, tell the user to run gopwd init
 		if !io.Exists(GopwdPath) {
+			if cmd.Name() == "__complete" {
+				return
+			}
 			panic("gopwd not initialized. Run 'gopwd init' to initialize")
 		}
 
@@ -57,6 +60,9 @@ func Execute() {
 		// check if vaultPath exists
 		// if not, tell the user to run gopwd init
 		if !io.Exists(viper.Get("vaultPath").(string)) {
+			if cmd.Name() == "__complete" {
+				return
+			}
 			panic("gopwd vault not initialized. Run 'gopwd init' to initialize")
 		}
 
