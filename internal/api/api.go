@@ -406,7 +406,7 @@ func RunDaemon(gopwdPath, vaultPath, addr string, cmd []string, certPath, keyPat
 	start(vaultPath, addr, certPath, keyPath)
 }
 
-func Run(gopwdPath, vaultPath, addr, certPath, keyPath string) err {
+func Run(gopwdPath, vaultPath, addr, certPath, keyPath string) error {
 	// Check if SSL certificates exist, and generate them if they don't
 	if !io.Exists(certPath) || !io.Exists(keyPath) {
 		err := ssl.GenerateSSLCert(certPath, keyPath)
