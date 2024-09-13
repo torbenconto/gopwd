@@ -372,6 +372,7 @@ func start(vaultPath, addr, certPath, keyPath string) {
 }
 
 func RunDaemon(gopwdPath, vaultPath, addr string, cmd []string, certPath, keyPath string) {
+	gin.SetMode(gin.ReleaseMode)
 	daemonContext := &daemon.Context{
 		PidFileName: filepath.Join(gopwdPath, "gopwd.pid"),
 		PidFilePerm: 0644,
@@ -407,6 +408,7 @@ func RunDaemon(gopwdPath, vaultPath, addr string, cmd []string, certPath, keyPat
 }
 
 func Run(gopwdPath, vaultPath, addr, certPath, keyPath string) error {
+	gin.SetMode(gin.ReleaseMode)
 	// Check if SSL certificates exist, and generate them if they don't
 	if !io.Exists(certPath) || !io.Exists(keyPath) {
 		err := ssl.GenerateSSLCert(certPath, keyPath)
