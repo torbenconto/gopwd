@@ -406,13 +406,12 @@ func RunDaemon(gopwdPath, vaultPath, addr string, cmd []string, certPath, keyPat
 	start(vaultPath, addr, certPath, keyPath)
 }
 
-func Run(gopwdPath, vaultPath, addr, certPath, keyPath string) {
+func Run(gopwdPath, vaultPath, addr, certPath, keyPath string) err {
 	// Check if SSL certificates exist, and generate them if they don't
 	if !io.Exists(certPath) || !io.Exists(keyPath) {
 		err := ssl.GenerateSSLCert(certPath, keyPath)
 		if err != nil {
-			fmt.Println("Error generating SSL cert:", err)
-			return
+			return err
 		}
 	}
 
@@ -431,7 +430,6 @@ func Run(gopwdPath, vaultPath, addr, certPath, keyPath string) {
 	fmt.Printf("Starting API server on %s...\n", addr)
 	err := r.RunTLS(addr, certPath, keyPath)
 	if err != nil {
-		fmt.Println("Error starting server:", err)
-		return
+		return err
 	}
 }
