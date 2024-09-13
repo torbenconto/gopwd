@@ -405,3 +405,33 @@ func RunDaemon(gopwdPath, vaultPath, addr string, cmd []string, certPath, keyPat
 
 	start(vaultPath, addr, certPath, keyPath)
 }
+
+func Run(gopwdPath, vaultPath, addr, certPath, keyPath string) {
+	// Check if SSL certificates exist, and generate them if they don't
+	if !io.Exists(certPath) || !io.Exists(keyPath) {
+		err := ssl.GenerateSSLCert(certPath, keyPath)
+		if err != nil {
+			fmt.Println("Error generating SSL cert:", err)
+			return
+		}
+	}
+
+	r := setupRouter(vaultPath)
+
+	// Capture shutdown signals to gracefully stop the server
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGTERM, syscall.SIGINT)
+
+	go func() {
+		<-sigs
+		fmt.Println("Shutting down server...")
+		os.Exit(0)
+	}()
+
+	fmt.Printf("Starting API server on %s...\n", addr)
+	err := r.RunTLS(addr, certPath, keyPath)
+	if err != nil {
+		fmt.Println("Error starting server:", err)
+		return
+	}
+}
