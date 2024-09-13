@@ -432,4 +432,6 @@ func Run(gopwdPath, vaultPath, addr, certPath, keyPath string) error {
 	if err != nil {
 		return err
 	}
+
+	return nil
 }
